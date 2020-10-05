@@ -39,15 +39,6 @@ class LA(private val reader: Reader, private val ignoreComments: Boolean = true)
     }
 
     fun next() {
-        if (ignoreComments)
-            do {
-                nextToken()
-            } while (current.tToken == TToken.TSingleLine || current.tToken == TToken.TMultiLine)
-        else
-            nextToken()
-    }
-
-    private fun nextToken() {
         if (nextCh == -1) {
             if (currentToken.tToken != TToken.TEOS) {
                 setToken(TToken.TEOS)
@@ -102,7 +93,7 @@ class LA(private val reader: Reader, private val ignoreComments: Boolean = true)
                         while (!isEndOfLine() && !isEndOfStream()) {
                             nextCharacter()
                         }
-                        setToken(TToken.TSingleLine)
+                        this.next()
                     } else if (nextCh == '*'.toInt()) {
                         nextCharacter()
                         var nesting = 0
@@ -113,7 +104,7 @@ class LA(private val reader: Reader, private val ignoreComments: Boolean = true)
                                 if (nextCh == '/'.toInt()) {
                                     nextCharacter()
                                     if (nesting == 0) {
-                                        setToken(TToken.TMultiLine)
+                                        this.next()
                                         break
                                     } else {
                                         nesting -= 1
@@ -306,8 +297,6 @@ class LA(private val reader: Reader, private val ignoreComments: Boolean = true)
 
 enum class TToken {
     TEOS, TERROR,
-
-    TSingleLine, TMultiLine,
 
     TConst, TElse, TFalse, TFun, TIf, TLet, TReturn, TTrue, TWhile,
 
