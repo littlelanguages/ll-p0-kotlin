@@ -4,12 +4,14 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.spec.style.FunSpecDsl
 import io.kotest.matchers.shouldBe
 import org.yaml.snakeyaml.Yaml
+import java.io.File
 import java.io.StringReader
 
 class LATests : FunSpec({
     context("Conformance Tests") {
 //        val content = File("./../overview/docs/p0/conformance/lexical.yaml").readText()
-        val content = khttp.get("https://little-languages.gitlab.io/overview/p0/conformance/lexical.yaml").text
+        val content = File("./src/test/kotlin/io/littlelanguages/p0/lexer/lexical.yaml").readText()
+//        val content = khttp.get("https://little-languages.gitlab.io/overview/p0/conformance/lexical.yaml").text
 
         val yaml = Yaml()
         val scenarios: Any = yaml.load(content)

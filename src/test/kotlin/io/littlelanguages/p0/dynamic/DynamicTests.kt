@@ -10,6 +10,7 @@ import io.littlelanguages.p0.Errors
 import io.littlelanguages.p0.dynamic.tst.Program
 import io.littlelanguages.p0.lexer.LA
 import org.yaml.snakeyaml.Yaml
+import java.io.File
 import java.io.StringReader
 
 private val yaml = Yaml()
@@ -17,9 +18,8 @@ private val yaml = Yaml()
 
 class DynamicTests : FunSpec({
     context("Conformance Tests") {
-//        val content = File("./dynamic.yaml").readText()
-//        val content = File("./../overview/docs/p0/conformance/dynamic.yaml").readText()
-        val content = khttp.get("https://little-languages.gitlab.io/overview/p0/conformance/dynamic.yaml").text
+        val content = File("./src/test/kotlin/io/littlelanguages/p0/dynamic/dynamic.yaml").readText()
+//        val content = khttp.get("https://little-languages.gitlab.io/overview/p0/conformance/dynamic.yaml").text
 
         val scenarios: Any = yaml.load(content)
 

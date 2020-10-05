@@ -12,6 +12,7 @@ import io.littlelanguages.p0.dynamic.translate
 import io.littlelanguages.p0.lexer.LA
 import org.yaml.snakeyaml.Yaml
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.io.PrintStream
 import java.io.StringReader
 
@@ -23,8 +24,8 @@ private val yaml = Yaml()
 
 class SemanticTests : FunSpec({
     context("Conformance Tests") {
-//        val content = File("./../overview/docs/p0/conformance/semantics.yaml").readText()
-        val content = khttp.get("https://little-languages.gitlab.io/overview/p0/conformance/semantics.yaml").text
+        val content = File("./src/test/kotlin/io/littlelanguages/p0/semantic/semantics.yaml").readText()
+//        val content = khttp.get("https://little-languages.gitlab.io/overview/p0/conformance/semantics.yaml").text
 
         val scenarios: Any = yaml.load(content)
 
