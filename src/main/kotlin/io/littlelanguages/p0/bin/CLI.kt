@@ -6,7 +6,8 @@ import io.littlelanguages.data.Right
 import io.littlelanguages.p0.Errors
 import io.littlelanguages.p0.dynamic.translate
 import io.littlelanguages.p0.lexer.LA
-import io.littlelanguages.p0.lexer.assembleTokens
+import io.littlelanguages.p0.lexer.TToken
+import io.littlelanguages.p0.lexer.Token
 import io.littlelanguages.p0.semantic.compile
 import org.yaml.snakeyaml.Yaml
 import java.io.File
@@ -31,6 +32,19 @@ private fun run(input: Input) {
 
 
 private fun lexicalOnly(input: Input) {
+    fun assembleTokens(la: LA): List<Token> {
+        val result = mutableListOf<Token>()
+
+        result += la.current
+        while (la.current.tToken != TToken.TEOS) {
+            la.next()
+            result += la.current
+        }
+
+        return result
+    }
+
+
     val sb =
             StringBuilder()
 

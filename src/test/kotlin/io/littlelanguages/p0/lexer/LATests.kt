@@ -23,8 +23,20 @@ class LATests : FunSpec({
 })
 
 
+private fun assembleTokens(la: LA): List<Token> {
+    val result = mutableListOf<Token>()
+
+    result += la.current
+    while (la.current.tToken != TToken.TEOS) {
+        la.next()
+        result += la.current
+    }
+
+    return result
+}
+
 private fun tokens(input: String): List<Token> =
-        assembleTokens(LA(StringReader(input), false))
+        assembleTokens(LA(StringReader(input)))
 
 
 suspend fun conformanceTest(ctx: FunSpecDsl.ContextScope, scenarios: List<*>) {

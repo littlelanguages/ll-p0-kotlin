@@ -319,15 +319,3 @@ data class Token(val tToken: TToken, val location: Location, val lexeme: String)
         return tToken.toString().drop(1) + " " + pp(location) + " [" + lexeme + "]"
     }
 }
-
-fun assembleTokens(la: LA): List<Token> {
-    val result = mutableListOf<Token>()
-
-    result += la.current
-    while (la.current.tToken != TToken.TEOS) {
-        la.next()
-        result += la.current
-    }
-
-    return result
-}
