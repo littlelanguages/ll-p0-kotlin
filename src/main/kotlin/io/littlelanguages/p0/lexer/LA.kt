@@ -16,7 +16,7 @@ private val keywords = mapOf(
         Pair("Float", TToken.TFloat),
         Pair("Int", TToken.TInt))
 
-class LA(private val reader: Reader, private val ignoreComments: Boolean = true) {
+class LA(private val reader: Reader) {
     private var offset: Int = -1
     private var line: Int = 1
     private var column: Int = 0
