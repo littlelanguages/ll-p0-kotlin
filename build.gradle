@@ -14,10 +14,10 @@ test {
 }
 
 ext {
-    vASM = '8.0.1'
+    vASM = '9.0'
     vKHttp = '1.0.0'
     vKotest = '4.0.5'
-    vSnakeYAML = '1.26'
+    vSnakeYAML = '1.27'
 }
 
 dependencies {
