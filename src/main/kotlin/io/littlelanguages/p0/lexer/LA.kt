@@ -244,9 +244,9 @@ class LA(private val reader: Reader, private val ignoreComments: Boolean = true)
 
     private fun setToken(tToken: TToken, text: String? = null) {
         if (lexeme == null) {
-            currentToken = Token(tToken, PositionCoordinate(offset + 1, line, column + 1), "")
+            currentToken = Token(tToken, LocationCoordinate(offset + 1, line, column + 1), "")
         } else {
-            currentToken = Token(tToken, PositionRange(PositionCoordinate(startOffset!!, startLine!!, startColumn!!), PositionCoordinate(offset, line, column)), text
+            currentToken = Token(tToken, LocationRange(LocationCoordinate(startOffset!!, startLine!!, startColumn!!), LocationCoordinate(offset, line, column)), text
                     ?: lexeme.toString())
             lexeme = null
         }
@@ -304,6 +304,32 @@ class LA(private val reader: Reader, private val ignoreComments: Boolean = true)
     }
 }
 
+enum class TToken {
+    TEOS, TERROR,
+
+    TSingleLine, TMultiLine,
+
+    TConst, TElse, TFalse, TFun, TIf, TLet, TReturn, TTrue, TWhile,
+
+    TBool, TFloat, TInt,
+
+    TAmpersandAmpersand, TBang, TBangEqual, TBarBar, TColon, TComma, TEqual, TEqualEqual, TGreaterEqual, TGreaterThan, TLCurly, TLessEqual, TLessThan,
+    TLParen, TMinus, TPlus, TQuestion, TRCurly, TRParen, TSemicolon, TSlash, TStar,
+
+    TIdentifier, TLiteralInt, TLiteralFloat, TLiteralString
+}
+
+data class Token(val tToken: TToken, val location: Location, val lexeme: String) {
+    override fun toString(): String {
+        fun pp(location: Location): String =
+                when (location) {
+                    is LocationCoordinate -> "${location.offset}:${location.line}:${location.column}"
+                    is LocationRange -> pp(location.start) + "-" + pp(location.end)
+                }
+
+        return tToken.toString().drop(1) + " " + pp(location) + " [" + lexeme + "]"
+    }
+}
 
 fun assembleTokens(la: LA): List<Token> {
     val result = mutableListOf<Token>()
@@ -316,5 +342,3 @@ fun assembleTokens(la: LA): List<Token> {
 
     return result
 }
-
-

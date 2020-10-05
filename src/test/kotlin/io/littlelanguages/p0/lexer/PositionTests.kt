@@ -4,15 +4,15 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 
 
-private val P1 = PositionCoordinate(0, 1, 2)
-private val P2 = PositionCoordinate(3, 4, 5)
-private val P3 = PositionCoordinate(6, 7, 8)
-private val P4 = PositionCoordinate(9, 10, 11)
+private val P1 = LocationCoordinate(0, 1, 2)
+private val P2 = LocationCoordinate(3, 4, 5)
+private val P3 = LocationCoordinate(6, 7, 8)
+private val P4 = LocationCoordinate(9, 10, 11)
 
 
 class LocationTests : StringSpec({
     "adding two ordered coordinates" {
-        val r = (P1 + P2) as PositionRange
+        val r = (P1 + P2) as LocationRange
 
         r.start.offset shouldBe 0
         r.start.line shouldBe 1
@@ -24,7 +24,7 @@ class LocationTests : StringSpec({
     }
 
     "adding two coordinates in reverse" {
-        val r = (P2 + P1) as PositionRange
+        val r = (P2 + P1) as LocationRange
 
         r.start.offset shouldBe 0
         r.start.line shouldBe 1
@@ -36,7 +36,7 @@ class LocationTests : StringSpec({
     }
 
     "adding two ordered ranges" {
-        val r = ((P1 + P2) + (P3 + P4)) as PositionRange
+        val r = ((P1 + P2) + (P3 + P4)) as LocationRange
 
         r.start.offset shouldBe 0
         r.start.line shouldBe 1
@@ -48,7 +48,7 @@ class LocationTests : StringSpec({
     }
 
     "adding two ranges in reverse" {
-        val r = ((P4 + P3) + (P2 + P1)) as PositionRange
+        val r = ((P4 + P3) + (P2 + P1)) as LocationRange
 
         r.start.offset shouldBe 0
         r.start.line shouldBe 1

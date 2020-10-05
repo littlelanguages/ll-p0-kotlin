@@ -1,8 +1,8 @@
 package io.littlelanguages.p0.static.ast
 
 import io.littlelanguages.data.Yamlable
-import io.littlelanguages.p0.lexer.Position
-import io.littlelanguages.p0.lexer.Positionable
+import io.littlelanguages.p0.lexer.Location
+import io.littlelanguages.p0.lexer.Locationable
 
 
 data class Program(
@@ -161,13 +161,13 @@ object EmptyStatement : Statement() {
 }
 
 
-sealed class Expression : Positionable, Yamlable
+sealed class Expression : Locationable, Yamlable
 
 data class TernaryExpression(
         val expression1: Expression,
         val expression2: Expression,
         val expression3: Expression) : Expression() {
-    override fun position(): Position = expression1.position() + expression3.position()
+    override fun position(): Location = expression1.position() + expression3.position()
 
     override fun yaml(): Any =
             singletonMap("TernaryExpression", mapOf(
@@ -180,7 +180,7 @@ data class BinaryExpression(
         val expression1: Expression,
         val op: BinaryOp,
         val expression2: Expression) : Expression() {
-    override fun position(): Position = expression1.position() + expression2.position()
+    override fun position(): Location = expression1.position() + expression2.position()
 
     override fun yaml(): Any =
             singletonMap("BinaryExpression", mapOf(
@@ -190,14 +190,14 @@ data class BinaryExpression(
 }
 
 data class UnaryExpression(
-        val position: Position,
+        val location: Location,
         val op: UnaryOp,
         val expression: Expression) : Expression() {
-    override fun position(): Position = position + expression.position()
+    override fun position(): Location = location + expression.position()
 
     override fun yaml(): Any =
             singletonMap("UnaryExpression", mapOf(
-                    Pair("position", position.yaml()),
+                    Pair("position", location.yaml()),
                     Pair("op", op.yaml()),
                     Pair("e", expression.yaml())))
 }
@@ -205,11 +205,11 @@ data class UnaryExpression(
 data class CallExpression(
         val identifier: Identifier,
         val expressions: List<Expression>) : Expression() {
-    override fun position(): Position =
+    override fun position(): Location =
             if (expressions.isEmpty())
-                identifier.position
+                identifier.location
             else
-                identifier.position + expressions.last().position()
+                identifier.location + expressions.last().position()
 
     override fun yaml(): Any =
             singletonMap("CallExpression", mapOf(
@@ -219,26 +219,26 @@ data class CallExpression(
 
 data class IdentifierReference(
         val identifier: Identifier) : Expression() {
-    override fun position(): Position = identifier.position
+    override fun position(): Location = identifier.location
 
     override fun yaml(): Any =
             mapOf(Pair("IdentifierReference", identifier.yaml()))
 }
 
 data class Parenthesis(
-        val position: Position,
+        val location: Location,
         val expression: Expression) : Expression() {
-    override fun position(): Position = position
+    override fun position(): Location = location
 
     override fun yaml(): Any =
             singletonMap("Parenthesis", mapOf(
                     Pair("e", expression.yaml()),
-                    Pair("position", position.yaml())))
+                    Pair("position", location.yaml())))
 }
 
 data class LiteralValueExpression(
         val value: LiteralValue) : Expression() {
-    override fun position(): Position = value.position()
+    override fun position(): Location = value.position()
 
     override fun yaml(): Any =
             singletonMap("LiteralValue", mapOf(
@@ -246,11 +246,11 @@ data class LiteralValueExpression(
 }
 
 
-sealed class LiteralExpression : Positionable, Yamlable
+sealed class LiteralExpression : Locationable, Yamlable
 
 data class LiteralExpressionValue(
         val value: LiteralValue) : LiteralExpression() {
-    override fun position(): Position = value.position()
+    override fun position(): Location = value.position()
 
     override fun yaml(): Any =
             singletonMap("LiteralExpressionValue", mapOf(
@@ -258,62 +258,62 @@ data class LiteralExpressionValue(
 }
 
 data class LiteralExpressionUnaryValue(
-        val position: Position,
+        val location: Location,
         val op: UnaryOp,
         val value: LiteralValue) : LiteralExpression() {
-    override fun position(): Position = position + value.position()
+    override fun position(): Location = location + value.position()
 
     override fun yaml(): Any =
             singletonMap("LiteralExpressionUnaryValue", mapOf(
-                    Pair("position", position.yaml()),
+                    Pair("position", location.yaml()),
                     Pair("op", op.yaml()),
                     Pair("value", value.yaml())))
 }
 
-sealed class LiteralValue : Positionable, Yamlable
+sealed class LiteralValue : Locationable, Yamlable
 
 data class LiteralBool(
-        val position: Position,
+        val location: Location,
         val value: Boolean) : LiteralValue() {
-    override fun position(): Position = position
+    override fun position(): Location = location
 
     override fun yaml(): Any =
             singletonMap("LiteralBool", mapOf(
                     Pair("value", if (value) "True" else "False"),
-                    Pair("position", position.yaml())))
+                    Pair("position", location.yaml())))
 }
 
 data class LiteralInt(
-        val position: Position,
+        val location: Location,
         val value: String) : LiteralValue() {
-    override fun position(): Position = position
+    override fun position(): Location = location
 
     override fun yaml(): Any =
             singletonMap("LiteralInt", mapOf(
                     Pair("value", value),
-                    Pair("position", position.yaml())))
+                    Pair("position", location.yaml())))
 }
 
 data class LiteralFloat(
-        val position: Position,
+        val location: Location,
         val value: String) : LiteralValue() {
-    override fun position(): Position = position
+    override fun position(): Location = location
 
     override fun yaml(): Any =
             singletonMap("LiteralFloat", mapOf(
                     Pair("value", value),
-                    Pair("position", position.yaml())))
+                    Pair("position", location.yaml())))
 }
 
 data class LiteralString(
-        val position: Position,
+        val location: Location,
         val value: String) : LiteralValue() {
-    override fun position(): Position = position
+    override fun position(): Location = location
 
     override fun yaml(): Any =
             singletonMap("LiteralString", mapOf(
                     Pair("value", value),
-                    Pair("position", position.yaml())))
+                    Pair("position", location.yaml())))
 }
 
 
@@ -350,12 +350,12 @@ enum class UnaryOp : Yamlable {
 
 
 data class Identifier(
-        val position: Position,
+        val location: Location,
         val name: String) : Yamlable {
     override fun yaml(): Any =
             mapOf(
                     Pair("value", name),
-                    Pair("position", position.yaml())
+                    Pair("position", location.yaml())
             )
 }
 

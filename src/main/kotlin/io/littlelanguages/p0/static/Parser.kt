@@ -6,7 +6,7 @@ import io.littlelanguages.data.Right
 import io.littlelanguages.p0.Errors
 import io.littlelanguages.p0.ParseError
 import io.littlelanguages.p0.lexer.LA
-import io.littlelanguages.p0.lexer.Position
+import io.littlelanguages.p0.lexer.Location
 import io.littlelanguages.p0.lexer.TToken
 import io.littlelanguages.p0.lexer.Token
 import io.littlelanguages.p0.static.ast.*
@@ -65,7 +65,7 @@ class Parser(private val la: LA) {
 
         matchToken(TToken.TSemicolon)
 
-        return VariableDeclaration(variableAccess, Identifier(identifier.position, identifier.lexeme), expression)
+        return VariableDeclaration(variableAccess, Identifier(identifier.location, identifier.lexeme), expression)
     }
 
     private fun variableDeclarationAccess(): VariableAccess {
@@ -84,13 +84,13 @@ class Parser(private val la: LA) {
             when {
                 peek().tToken == TToken.TTrue -> {
                     val position =
-                            nextToken().position
+                            nextToken().location
 
                     LiteralExpressionValue(LiteralBool(position, true))
                 }
                 peek().tToken == TToken.TFalse -> {
                     val position =
-                            nextToken().position
+                            nextToken().location
 
                     LiteralExpressionValue(LiteralBool(position, false))
                 }
@@ -109,17 +109,17 @@ class Parser(private val la: LA) {
                 else -> throw ParsingException(peek(), firstLiteralExpression)
             }
 
-    private fun literalExpressionSign(): Pair<Position, UnaryOp>? =
+    private fun literalExpressionSign(): Pair<Location, UnaryOp>? =
             when (peek().tToken) {
                 TToken.TPlus -> {
                     val position =
-                            nextToken().position
+                            nextToken().location
 
                     Pair(position, UnaryOp.UnaryPlus)
                 }
                 TToken.TMinus -> {
                     val position =
-                            nextToken().position
+                            nextToken().location
 
                     Pair(position, UnaryOp.UnaryMinus)
                 }
@@ -132,13 +132,13 @@ class Parser(private val la: LA) {
                     val symbol =
                             nextToken()
 
-                    LiteralInt(symbol.position, symbol.lexeme)
+                    LiteralInt(symbol.location, symbol.lexeme)
                 }
                 TToken.TLiteralFloat -> {
                     val symbol =
                             nextToken()
 
-                    LiteralFloat(symbol.position, symbol.lexeme)
+                    LiteralFloat(symbol.location, symbol.lexeme)
                 }
                 else -> throw ParsingException(peek(), firstLiteralExpressionValue)
             }
@@ -159,7 +159,7 @@ class Parser(private val la: LA) {
         val functionDeclarationSuffix =
                 functionDeclarationSuffix()
 
-        return FunctionDeclaration(Identifier(identifier.position, identifier.lexeme), parameters, functionDeclarationSuffix.first, functionDeclarationSuffix.second)
+        return FunctionDeclaration(Identifier(identifier.location, identifier.lexeme), parameters, functionDeclarationSuffix.first, functionDeclarationSuffix.second)
     }
 
     private fun parameters(): List<Pair<Identifier, Type>> =
@@ -222,7 +222,7 @@ class Parser(private val la: LA) {
         val type =
                 type()
 
-        return Pair(Identifier(identifier.position, identifier.lexeme), type)
+        return Pair(Identifier(identifier.location, identifier.lexeme), type)
     }
 
     private fun type(): Type =
@@ -271,7 +271,7 @@ class Parser(private val la: LA) {
 
                         matchToken(TToken.TSemicolon)
 
-                        AssignmentStatement(Identifier(identifier.position, identifier.lexeme), expression)
+                        AssignmentStatement(Identifier(identifier.location, identifier.lexeme), expression)
                     } else {
                         matchToken(TToken.TLParen)
                         val arguments =
@@ -280,7 +280,7 @@ class Parser(private val la: LA) {
                         matchToken(TToken.TRParen)
                         matchToken(TToken.TSemicolon)
 
-                        CallStatement(Identifier(identifier.position, identifier.lexeme), arguments)
+                        CallStatement(Identifier(identifier.location, identifier.lexeme), arguments)
                     }
                 }
                 TToken.TIf -> {
@@ -342,7 +342,7 @@ class Parser(private val la: LA) {
 
                         matchToken(TToken.TSemicolon)
 
-                        DeclarationStatement(variableDeclarationAccess, Identifier(identifier.position, identifier.lexeme), expression)
+                        DeclarationStatement(variableDeclarationAccess, Identifier(identifier.location, identifier.lexeme), expression)
                     } else
                         throw ParsingException(peek(), firstStatement)
             }
@@ -522,31 +522,31 @@ class Parser(private val la: LA) {
                     val token =
                             nextToken()
 
-                    LiteralValueExpression(LiteralInt(token.position, token.lexeme))
+                    LiteralValueExpression(LiteralInt(token.location, token.lexeme))
                 }
                 TToken.TLiteralFloat -> {
                     val token =
                             nextToken()
 
-                    LiteralValueExpression(LiteralFloat(token.position, token.lexeme))
+                    LiteralValueExpression(LiteralFloat(token.location, token.lexeme))
                 }
                 TToken.TLiteralString -> {
                     val token =
                             nextToken()
 
-                    LiteralValueExpression(LiteralString(token.position, token.lexeme))
+                    LiteralValueExpression(LiteralString(token.location, token.lexeme))
                 }
                 TToken.TTrue -> {
                     val token =
                             nextToken()
 
-                    LiteralValueExpression(LiteralBool(token.position, true))
+                    LiteralValueExpression(LiteralBool(token.location, true))
                 }
                 TToken.TFalse -> {
                     val token =
                             nextToken()
 
-                    LiteralValueExpression(LiteralBool(token.position, false))
+                    LiteralValueExpression(LiteralBool(token.location, false))
                 }
                 TToken.TLParen -> {
                     val leftToken =
@@ -558,7 +558,7 @@ class Parser(private val la: LA) {
                     val rightToken =
                             matchToken(TToken.TRParen)
 
-                    Parenthesis(leftToken.position + rightToken.position, expression)
+                    Parenthesis(leftToken.location + rightToken.location, expression)
                 }
                 TToken.TIdentifier -> {
                     val identifier =
@@ -568,14 +568,14 @@ class Parser(private val la: LA) {
                             optionalParameters()
 
                     if (optionalParameters == null)
-                        IdentifierReference(Identifier(identifier.position, identifier.lexeme))
+                        IdentifierReference(Identifier(identifier.location, identifier.lexeme))
                     else
-                        CallExpression(Identifier(identifier.position, identifier.lexeme), optionalParameters.first)
+                        CallExpression(Identifier(identifier.location, identifier.lexeme), optionalParameters.first)
                 }
                 else ->
                     if (firstUnaryOperator.contains(peek().tToken)) {
                         val position =
-                                peek().position
+                                peek().location
 
                         val unaryOperator =
                                 unaryOperator()
@@ -606,7 +606,7 @@ class Parser(private val la: LA) {
         return result
     }
 
-    private fun optionalParameters(): Pair<List<Expression>, Position>? =
+    private fun optionalParameters(): Pair<List<Expression>, Location>? =
             if (peek().tToken == TToken.TLParen) {
                 val startToken =
                         nextToken()
@@ -617,7 +617,7 @@ class Parser(private val la: LA) {
                 val endToken =
                         matchToken(TToken.TRParen)
 
-                Pair(parameters, startToken.position + endToken.position)
+                Pair(parameters, startToken.location + endToken.location)
             } else
                 null
 

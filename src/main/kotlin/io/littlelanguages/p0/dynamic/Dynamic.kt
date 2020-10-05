@@ -74,7 +74,7 @@ class Translator {
 
         for (d in p.declarations) {
             if (sigma.contains(d.identifier.name))
-                reportError(AttemptToRedefineDeclarationError(d.identifier.position, d.identifier.name))
+                reportError(AttemptToRedefineDeclarationError(d.identifier.location, d.identifier.name))
             else
                 sigma[d.identifier.name] = binding(d)
         }
@@ -88,7 +88,7 @@ class Translator {
 
             is io.littlelanguages.p0.static.ast.FunctionDeclaration -> {
                 if (main.arguments.isNotEmpty() || main.suffix != null)
-                    reportError(InvalidDeclarationOfMain(main.identifier.position))
+                    reportError(InvalidDeclarationOfMain(main.identifier.location))
 
                 val ssp =
                         ss(main.statements, sigma).first
@@ -97,7 +97,7 @@ class Translator {
             }
 
             else -> {
-                reportError(InvalidDeclarationOfMain(main.identifier.position))
+                reportError(InvalidDeclarationOfMain(main.identifier.location))
                 Program(p.declarations.map { d(it, sigma) }, EmptyStatement)
             }
         }
@@ -119,7 +119,7 @@ class Translator {
 
                         for (a in d.arguments) {
                             if (names.contains(a.first.name))
-                                reportError(AttemptToRedefineDeclarationError(a.first.position, a.first.name))
+                                reportError(AttemptToRedefineDeclarationError(a.first.location, a.first.name))
 
                             names.add(a.first.name)
                         }
@@ -132,7 +132,7 @@ class Translator {
                         for (s in d.statements) {
                             if (s is DeclarationStatement) {
                                 if (names.contains(s.identifier.name)) {
-                                    reportError(AttemptToRedefineDeclarationError(s.identifier.position, s.identifier.name))
+                                    reportError(AttemptToRedefineDeclarationError(s.identifier.location, s.identifier.name))
                                 }
 
                                 names.add(s.identifier.name)
@@ -159,7 +159,7 @@ class Translator {
                                 e(suffix.second, ssp.second)
 
                         if (ep.typeOf() != suffix.first.toType()) {
-                            reportError(FunctionReturnTypeMismatch(d.identifier.position, d.identifier.name, suffix.first.toType()))
+                            reportError(FunctionReturnTypeMismatch(d.identifier.location, d.identifier.name, suffix.first.toType()))
                         }
 
                         FunctionDeclaration(d.identifier.name, d.arguments.map { Pair(it.first.name, it.second.toType()) }, ssp.first, ep)
@@ -182,7 +182,7 @@ class Translator {
                                     try {
                                         LiteralInt(parseInt("-" + ast.value.value))
                                     } catch (e: NumberFormatException) {
-                                        reportError(LiteralIntOverFlowError(ast.position + ast.value.position, "-" + ast.value.value))
+                                        reportError(LiteralIntOverFlowError(ast.location + ast.value.location, "-" + ast.value.value))
                                         LiteralInt(0)
                                     }
                             } else {
@@ -193,7 +193,7 @@ class Translator {
                                         parseFloat("-" + value.value)
 
                                 if (v == Float.NEGATIVE_INFINITY)
-                                    reportError(LiteralFloatOverFlowError(ast.position + value.position, "-" + value.value))
+                                    reportError(LiteralFloatOverFlowError(ast.location + value.location, "-" + value.value))
 
                                 LiteralFloat(v)
                             }
@@ -212,7 +212,7 @@ class Translator {
                     try {
                         LiteralInt(parseInt(ast.value))
                     } catch (e: NumberFormatException) {
-                        reportError(LiteralIntOverFlowError(ast.position, ast.value))
+                        reportError(LiteralIntOverFlowError(ast.location, ast.value))
                         LiteralInt(0)
                     }
 
@@ -221,7 +221,7 @@ class Translator {
                             parseFloat(ast.value)
 
                     if (v == Float.POSITIVE_INFINITY)
-                        reportError(LiteralFloatOverFlowError(ast.position, ast.value))
+                        reportError(LiteralFloatOverFlowError(ast.location, ast.value))
 
                     LiteralFloat(v)
                 }
@@ -277,17 +277,17 @@ class Translator {
 
                     when (binding) {
                         null ->
-                            reportError(UnknownIdentifier(s.identifier.name, s.identifier.position))
+                            reportError(UnknownIdentifier(s.identifier.name, s.identifier.location))
 
                         is Constant ->
-                            reportError(UnableToAssignToConstant(s.identifier.name, s.identifier.position))
+                            reportError(UnableToAssignToConstant(s.identifier.name, s.identifier.location))
 
                         is Function ->
-                            reportError(UnableToAssignToFunction(s.identifier.name, s.identifier.position))
+                            reportError(UnableToAssignToFunction(s.identifier.name, s.identifier.location))
 
                         is Variable ->
                             if (binding.t != ep.typeOf())
-                                reportError(UnableToAssignIncompatibleTypes(binding.t, s.identifier.position, ep.typeOf(), s.expression.position()))
+                                reportError(UnableToAssignIncompatibleTypes(binding.t, s.identifier.location, ep.typeOf(), s.expression.position()))
                     }
 
                     Pair(AssignmentStatement(s.identifier.name, ep), sigma)
@@ -335,12 +335,12 @@ class Translator {
 
                     when (binding) {
                         is Constant -> {
-                            reportError(UnableToCallConstantAsFunction(s.identifier.name, s.identifier.position))
+                            reportError(UnableToCallConstantAsFunction(s.identifier.name, s.identifier.location))
                             Pair(CallStatement(s.identifier.name, emptyList()), sigma)
                         }
 
                         is Variable -> {
-                            reportError(UnableToCallVariableAsFunction(s.identifier.name, s.identifier.position))
+                            reportError(UnableToCallVariableAsFunction(s.identifier.name, s.identifier.location))
                             Pair(CallStatement(s.identifier.name, emptyList()), sigma)
                         }
 
@@ -349,7 +349,7 @@ class Translator {
                                     s.expressions.map { e(it, sigma) }
 
                             if (argsp.size != binding.ps.size)
-                                reportError(MismatchInNumberOfParameters(argsp.size, binding.ps.size, s.identifier.position))
+                                reportError(MismatchInNumberOfParameters(argsp.size, binding.ps.size, s.identifier.location))
                             else {
                                 for ((index, parameter) in binding.ps.withIndex()) {
                                     if (parameter != argsp[index].typeOf())
@@ -360,7 +360,7 @@ class Translator {
                             if (binding.r == null) {
                                 Pair(CallStatement(s.identifier.name, argsp), sigma)
                             } else
-                                reportError(UnableToCallValueFunctionAsUnitFunction(s.identifier.name, s.identifier.position))
+                                reportError(UnableToCallValueFunctionAsUnitFunction(s.identifier.name, s.identifier.location))
                             Pair(CallStatement(s.identifier.name, argsp), sigma)
                         }
 
@@ -368,7 +368,7 @@ class Translator {
                             if (s.identifier.name == "print" || s.identifier.name == "println")
                                 Pair(CallStatement(s.identifier.name, s.expressions.map { e(it, sigma) }), sigma)
                             else {
-                                reportError(UnknownIdentifier(s.identifier.name, s.identifier.position))
+                                reportError(UnknownIdentifier(s.identifier.name, s.identifier.location))
                                 Pair(CallStatement(s.identifier.name, emptyList()), sigma)
                             }
                         }
@@ -441,7 +441,7 @@ class Translator {
                     if (e.op == io.littlelanguages.p0.static.ast.UnaryOp.UnaryMinus
                             && e.expression is io.littlelanguages.p0.static.ast.LiteralValueExpression
                             && e.expression.value is io.littlelanguages.p0.static.ast.LiteralInt) {
-                        LiteralValueExpression(le(LiteralExpressionUnaryValue(e.position, e.op, e.expression.value)))
+                        LiteralValueExpression(le(LiteralExpressionUnaryValue(e.location, e.op, e.expression.value)))
                     } else {
                         val opp =
                                 uo(e.op)
@@ -469,12 +469,12 @@ class Translator {
 
                     when (binding) {
                         is Constant -> {
-                            reportError(UnableToCallConstantAsFunction(e.identifier.name, e.identifier.position))
+                            reportError(UnableToCallConstantAsFunction(e.identifier.name, e.identifier.location))
                             CallExpression(Type.TError, e.identifier.name, emptyList())
                         }
 
                         is Variable -> {
-                            reportError(UnableToCallVariableAsFunction(e.identifier.name, e.identifier.position))
+                            reportError(UnableToCallVariableAsFunction(e.identifier.name, e.identifier.location))
                             CallExpression(Type.TError, e.identifier.name, emptyList())
                         }
 
@@ -483,7 +483,7 @@ class Translator {
                                     e.expressions.map { e(it, sigma) }
 
                             if (argsp.size != binding.ps.size)
-                                reportError(MismatchInNumberOfParameters(argsp.size, binding.ps.size, e.identifier.position))
+                                reportError(MismatchInNumberOfParameters(argsp.size, binding.ps.size, e.identifier.location))
                             else {
                                 for ((index, parameter) in binding.ps.withIndex()) {
                                     if (parameter != argsp[index].typeOf())
@@ -492,14 +492,14 @@ class Translator {
                             }
 
                             if (binding.r == null) {
-                                reportError(UnableToCallUnitFunctionAsValueFunction(e.identifier.name, e.identifier.position))
+                                reportError(UnableToCallUnitFunctionAsValueFunction(e.identifier.name, e.identifier.location))
                                 CallExpression(Type.TError, e.identifier.name, argsp)
                             } else
                                 CallExpression(binding.r, e.identifier.name, argsp)
                         }
 
                         else -> {
-                            reportError(UnknownIdentifier(e.identifier.name, e.identifier.position))
+                            reportError(UnknownIdentifier(e.identifier.name, e.identifier.location))
                             IdentifierReference(Type.TError, e.identifier.name)
                         }
                     }
@@ -522,7 +522,7 @@ class Translator {
                         }
 
                         else -> {
-                            reportError(UnknownIdentifier(e.identifier.name, e.identifier.position))
+                            reportError(UnknownIdentifier(e.identifier.name, e.identifier.location))
                             IdentifierReference(Type.TError, e.identifier.name)
                         }
                     }
