@@ -6,7 +6,7 @@ import io.kotest.matchers.shouldBe
 import io.littlelanguages.data.Either
 import io.littlelanguages.data.Right
 import io.littlelanguages.p0.Errors
-import io.littlelanguages.p0.lexer.LA
+import io.littlelanguages.p0.lexer.Scanner
 import io.littlelanguages.p0.static.ast.Program
 import org.yaml.snakeyaml.Yaml
 import java.io.File
@@ -30,7 +30,7 @@ class ParserTests : FunSpec({
 
 
 fun parse(input: String): Either<Errors, Program> =
-        parse(LA(StringReader(input)))
+        parse(Scanner(StringReader(input)))
 
 
 suspend fun conformanceTest(ctx: FunSpecDsl.ContextScope, scenarios: List<*>) {

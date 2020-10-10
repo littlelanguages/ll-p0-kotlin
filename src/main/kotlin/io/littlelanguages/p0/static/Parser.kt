@@ -5,17 +5,17 @@ import io.littlelanguages.data.Left
 import io.littlelanguages.data.Right
 import io.littlelanguages.p0.Errors
 import io.littlelanguages.p0.ParseError
-import io.littlelanguages.p0.lexer.LA
-import io.littlelanguages.p0.lexer.Location
+import io.littlelanguages.p0.lexer.Scanner
 import io.littlelanguages.p0.lexer.TToken
 import io.littlelanguages.p0.lexer.Token
 import io.littlelanguages.p0.static.ast.*
+import io.littlelanguages.scanpiler.Location
 
-fun parse(la: LA): Either<Errors, Program> =
+fun parse(la: Scanner): Either<Errors, Program> =
         Parser(la).program()
 
 
-class Parser(private val la: LA) {
+class Parser(private val la: Scanner) {
     fun program(): Either<Errors, Program> =
             try {
                 val declarations =
@@ -641,7 +641,7 @@ class Parser(private val la: LA) {
     }
 
     private fun peek(): Token =
-            la.current
+            la.current()
 }
 
 

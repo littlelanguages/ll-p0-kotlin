@@ -5,7 +5,7 @@ import io.littlelanguages.data.Left
 import io.littlelanguages.data.Right
 import io.littlelanguages.p0.Errors
 import io.littlelanguages.p0.dynamic.translate
-import io.littlelanguages.p0.lexer.LA
+import io.littlelanguages.p0.lexer.Scanner
 import io.littlelanguages.p0.lexer.TToken
 import io.littlelanguages.p0.lexer.Token
 import io.littlelanguages.p0.semantic.compile
@@ -32,13 +32,13 @@ private fun run(input: Input) {
 
 
 private fun lexicalOnly(input: Input) {
-    fun assembleTokens(la: LA): List<Token> {
+    fun assembleTokens(la: Scanner): List<Token> {
         val result = mutableListOf<Token>()
 
-        result += la.current
-        while (la.current.tToken != TToken.TEOS) {
+        result += la.current()
+        while (la.current().tToken != TToken.TEOS) {
             la.next()
-            result += la.current
+            result += la.current()
         }
 
         return result
@@ -48,7 +48,7 @@ private fun lexicalOnly(input: Input) {
     val sb =
             StringBuilder()
 
-    assembleTokens(LA(StringReader(input.src.readText())))
+    assembleTokens(Scanner(StringReader(input.src.readText())))
             .forEach { sb.append("- $it\n") }
 
     input.lexicalYaml.writeText(sb.toString())
@@ -57,7 +57,7 @@ private fun lexicalOnly(input: Input) {
 
 private fun astOnly(input: Input) {
     val ast =
-            io.littlelanguages.p0.static.parse(LA(StringReader(input.src.readText())))
+            io.littlelanguages.p0.static.parse(Scanner(StringReader(input.src.readText())))
 
     when (ast) {
         is Left ->
@@ -70,7 +70,7 @@ private fun astOnly(input: Input) {
 
 private fun tstOnly(input: Input) {
     val tst =
-            io.littlelanguages.p0.static.parse(LA(StringReader(input.src.readText())))
+            io.littlelanguages.p0.static.parse(Scanner(StringReader(input.src.readText())))
                     .mapLeft { listOf(it) }
                     .andThen { translate(it) }
 
@@ -105,7 +105,7 @@ private fun compileOnly(input: Input) {
 }
 
 fun parse(input: String, moduleName: String): Either<List<Errors>, ByteArray> =
-        io.littlelanguages.p0.static.parse(LA(StringReader(input)))
+        io.littlelanguages.p0.static.parse(Scanner(StringReader(input)))
                 .mapLeft { listOf(it) }
                 .andThen { translate(it) }
                 .andThen { compile(it, moduleName) }

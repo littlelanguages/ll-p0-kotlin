@@ -2,6 +2,8 @@ package io.littlelanguages.p0.lexer
 
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
+import io.littlelanguages.scanpiler.LocationCoordinate
+import io.littlelanguages.scanpiler.LocationRange
 
 
 private val P1 = LocationCoordinate(0, 1, 2)

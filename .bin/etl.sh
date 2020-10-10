@@ -9,4 +9,4 @@ then
     exit 1
 fi
 
-find . | grep -e ".kt$" -e "yaml$" | entr -s .bin/test.sh
+find . | grep -e ".llld$" -e ".kt$" -e ".yaml$" | entr -s .bin/test.sh

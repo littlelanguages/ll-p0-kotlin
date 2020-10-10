@@ -608,7 +608,7 @@
                 }
               output:
                 - TernaryExpressionResultIncompatible:
-                    thenPosition: 32:2:20-32:2:20
+                    thenPosition: "32:2:20"
                     elsePosition: 36:2:24-38:2:26
       - scenario:
           name: Binary
@@ -649,7 +649,7 @@
                             - BinaryExpressionRequiresOperandType:
                                 op: And
                                 type: Int
-                                position: 25:2:13-25:2:13
+                                position: "25:2:13"
                         - name: "true && 1"
                           input: |
                             fun main() {
@@ -659,7 +659,7 @@
                             - BinaryExpressionRequiresOperandType:
                                 op: And
                                 type: Int
-                                position: 33:2:21-33:2:21
+                                position: "33:2:21"
                         - name: "1.0 && 1"
                           input: |
                             fun main() {
@@ -673,7 +673,7 @@
                             - BinaryExpressionRequiresOperandType:
                                 op: And
                                 type: Int
-                                position: 32:2:20-32:2:20
+                                position: "32:2:20"
                   - scenario:
                       name: "||"
                       tests:
@@ -707,7 +707,7 @@
                             - BinaryExpressionRequiresOperandType:
                                 op: Or
                                 type: Int
-                                position: 25:2:13-25:2:13
+                                position: "25:2:13"
                         - name: "true || 1"
                           input: |
                             fun main() {
@@ -717,7 +717,7 @@
                             - BinaryExpressionRequiresOperandType:
                                 op: Or
                                 type: Int
-                                position: 33:2:21-33:2:21
+                                position: "33:2:21"
                         - name: "1.0 || 1"
                           input: |
                             fun main() {
@@ -731,7 +731,7 @@
                             - BinaryExpressionRequiresOperandType:
                                 op: Or
                                 type: Int
-                                position: 32:2:20-32:2:20
+                                position: "32:2:20"
             - scenario:
                 name: Equality operators
                 tests:
@@ -809,7 +809,7 @@
                           output:
                             - BinaryExpressionOperandsIncompatible:
                                 op: Equal
-                                position1: 25:2:13-25:2:13
+                                position1: "25:2:13"
                                 type1: Int
                                 position2: 30:2:18-33:2:21
                                 type2: Bool
@@ -823,7 +823,7 @@
                                 op: Equal
                                 position1: 25:2:13-28:2:16
                                 type1: Bool
-                                position2: 33:2:21-33:2:21
+                                position2: "33:2:21"
                                 type2: Int
                   - scenario:
                       name: "!="
@@ -899,7 +899,7 @@
                           output:
                             - BinaryExpressionOperandsIncompatible:
                                 op: NotEqual
-                                position1: 25:2:13-25:2:13
+                                position1: "25:2:13"
                                 type1: Int
                                 position2: 30:2:18-33:2:21
                                 type2: Bool
@@ -913,7 +913,7 @@
                                 op: NotEqual
                                 position1: 25:2:13-28:2:16
                                 type1: Bool
-                                position2: 33:2:21-33:2:21
+                                position2: "33:2:21"
                                 type2: Int
             - scenario:
                 name: Relational operators
@@ -989,7 +989,7 @@
                                 position: 29:2:17-32:2:20
                             - BinaryExpressionOperandsIncompatible:
                                 op: LessThan
-                                position1: 25:2:13-25:2:13
+                                position1: "25:2:13"
                                 type1: Int
                                 position2: 29:2:17-32:2:20
                                 type2: Bool
@@ -1003,7 +1003,7 @@
                                 op: LessThan
                                 position1: 25:2:13-27:2:15
                                 type1: Float
-                                position2: 31:2:19-31:2:19
+                                position2: "31:2:19"
                                 type2: Int
                   - scenario:
                       name: "<="
@@ -1076,7 +1076,7 @@
                                 position: 30:2:18-33:2:21
                             - BinaryExpressionOperandsIncompatible:
                                 op: LessEqual
-                                position1: 25:2:13-25:2:13
+                                position1: "25:2:13"
                                 type1: Int
                                 position2: 30:2:18-33:2:21
                                 type2: Bool
@@ -1090,7 +1090,7 @@
                                 op: LessEqual
                                 position1: 25:2:13-27:2:15
                                 type1: Float
-                                position2: 32:2:20-32:2:20
+                                position2: "32:2:20"
                                 type2: Int
                   - scenario:
                       name: ">"
@@ -1163,7 +1163,7 @@
                                 position: 29:2:17-32:2:20
                             - BinaryExpressionOperandsIncompatible:
                                 op: GreaterThan
-                                position1: 25:2:13-25:2:13
+                                position1: "25:2:13"
                                 type1: Int
                                 position2: 29:2:17-32:2:20
                                 type2: Bool
@@ -1177,7 +1177,7 @@
                                 op: GreaterThan
                                 position1: 25:2:13-27:2:15
                                 type1: Float
-                                position2: 31:2:19-31:2:19
+                                position2: "31:2:19"
                                 type2: Int
                   - scenario:
                       name: ">="
@@ -1250,7 +1250,7 @@
                                 position: 30:2:18-33:2:21
                             - BinaryExpressionOperandsIncompatible:
                                 op: GreaterEqual
-                                position1: 25:2:13-25:2:13
+                                position1: "25:2:13"
                                 type1: Int
                                 position2: 30:2:18-33:2:21
                                 type2: Bool
@@ -1264,7 +1264,7 @@
                                 op: GreaterEqual
                                 position1: 25:2:13-27:2:15
                                 type1: Float
-                                position2: 32:2:20-32:2:20
+                                position2: "32:2:20"
                                 type2: Int
             - scenario:
                 name: Arithmatic operators
@@ -1340,7 +1340,7 @@
                                 position: 29:2:17-32:2:20
                             - BinaryExpressionOperandsIncompatible:
                                 op: Plus
-                                position1: 25:2:13-25:2:13
+                                position1: "25:2:13"
                                 type1: Int
                                 position2: 29:2:17-32:2:20
                                 type2: Bool
@@ -1354,7 +1354,7 @@
                                 op: Plus
                                 position1: 25:2:13-27:2:15
                                 type1: Float
-                                position2: 31:2:19-31:2:19
+                                position2: "31:2:19"
                                 type2: Int
                   - scenario:
                       name: "-"
@@ -1427,7 +1427,7 @@
                                 position: 29:2:17-32:2:20
                             - BinaryExpressionOperandsIncompatible:
                                 op: Minus
-                                position1: 25:2:13-25:2:13
+                                position1: "25:2:13"
                                 type1: Int
                                 position2: 29:2:17-32:2:20
                                 type2: Bool
@@ -1441,7 +1441,7 @@
                                 op: Minus
                                 position1: 25:2:13-27:2:15
                                 type1: Float
-                                position2: 31:2:19-31:2:19
+                                position2: "31:2:19"
                                 type2: Int
                   - scenario:
                       name: "*"
@@ -1514,7 +1514,7 @@
                                 position: 29:2:17-32:2:20
                             - BinaryExpressionOperandsIncompatible:
                                 op: Times
-                                position1: 25:2:13-25:2:13
+                                position1: "25:2:13"
                                 type1: Int
                                 position2: 29:2:17-32:2:20
                                 type2: Bool
@@ -1528,7 +1528,7 @@
                                 op: Times
                                 position1: 25:2:13-27:2:15
                                 type1: Float
-                                position2: 31:2:19-31:2:19
+                                position2: "31:2:19"
                                 type2: Int
                   - scenario:
                       name: "/"
@@ -1601,7 +1601,7 @@
                                 position: 29:2:17-32:2:20
                             - BinaryExpressionOperandsIncompatible:
                                 op: Divide
-                                position1: 25:2:13-25:2:13
+                                position1: "25:2:13"
                                 type1: Int
                                 position2: 29:2:17-32:2:20
                                 type2: Bool
@@ -1615,7 +1615,7 @@
                                 op: Divide
                                 position1: 25:2:13-27:2:15
                                 type1: Float
-                                position2: 31:2:19-31:2:19
+                                position2: "31:2:19"
                                 type2: Int
       - scenario:
           name: Unary
@@ -1758,7 +1758,7 @@
                       - UnaryExpressionRequiresOperandType:
                           op: UnaryNot
                           type: Int
-                          position: 26:2:14-26:2:14
+                          position: "26:2:14"
                   - name: "!1.0"
                     input: |
                       fun main() {
@@ -2331,7 +2331,7 @@
               output:
                 - UnknownIdentifier:
                     name: 'y'
-                    position: 38:2:13-38:2:13
+                    position: "38:2:13"
       - scenario:
           name: Call Expression
           tests:
@@ -2528,7 +2528,7 @@
               output:
                 - UnableToAssignToConstant:
                     name: x
-                    position: 31:4:3-31:4:3
+                    position: "31:4:3"
             - name: Float constant
               input: |
                 fun main() {
@@ -2539,7 +2539,7 @@
               output:
                 - UnableToAssignToConstant:
                     name: x
-                    position: 33:4:3-33:4:3
+                    position: "33:4:3"
             - name: Bool constant
               input: |
                 fun main() {
@@ -2550,7 +2550,7 @@
               output:
                 - UnableToAssignToConstant:
                     name: x
-                    position: 34:4:3-34:4:3
+                    position: "34:4:3"
             - name: Function
               input: |
                 fun add(a: Int, b: Int): Int {
@@ -2574,9 +2574,9 @@
               output:
                 - UnableToAssignIncompatibleTypes:
                     type: Bool
-                    position: 32:4:3-32:4:3
+                    position: "32:4:3"
                     expressionType: Int
-                    expressionPosition: 36:4:7-36:4:7
+                    expressionPosition: "36:4:7"
             - name: Undefined variable
               input: |
                 fun main() {
@@ -2585,7 +2585,7 @@
               output:
                 - UnknownIdentifier:
                     name: x
-                    position: 15:2:3-15:2:3
+                    position: "15:2:3"
       - scenario:
           name: If Then Else
           tests:
@@ -2664,7 +2664,7 @@
               output:
                 - IfGuardNotBoolean:
                     type: Int
-                    position: 32:4:6-32:4:6
+                    position: "32:4:6"
             - name: If e Then Else guard not boolean
               input: |
                 fun main() {
@@ -2678,7 +2678,7 @@
               output:
                 - IfGuardNotBoolean:
                     type: Int
-                    position: 32:4:6-32:4:6
+                    position: "32:4:6"
       - scenario:
           name: While
           tests:
@@ -2730,7 +2730,7 @@
               output:
                 - WhileGuardNotBoolean:
                     type: Int
-                    position: 35:4:9-35:4:9
+                    position: "35:4:9"
       - scenario:
           name: Call
           tests:
@@ -2912,7 +2912,7 @@
               output:
                 - AttemptToRedefineDeclaration:
                     name: x
-                    position: 23:3:7-23:3:7
+                    position: "23:3:7"
             - name: "duplicate declaration - let const"
               input: |
                 let x = true;
@@ -2921,7 +2921,7 @@
               output:
                 - AttemptToRedefineDeclaration:
                     name: x
-                    position: 21:3:7-21:3:7
+                    position: "21:3:7"
       - scenario:
           name: Variable
           tests:
@@ -2945,7 +2945,7 @@
               output:
                 - AttemptToRedefineDeclaration:
                     name: x
-                    position: 19:3:5-19:3:5
+                    position: "19:3:5"
             - name: "duplicate declaration - const let"
               input: |
                 const x = true;
@@ -2954,7 +2954,7 @@
               output:
                 - AttemptToRedefineDeclaration:
                     name: x
-                    position: 21:3:5-21:3:5
+                    position: "21:3:5"
       - scenario:
           name: Function
           tests:
@@ -2999,7 +2999,7 @@
               output:
                 - AttemptToRedefineDeclaration:
                     name: a
-                    position: 25:1:26-25:1:26
+                    position: "25:1:26"
             - name: "argument name in function declaration may override global declaration"
               input: |
                 const a = 1.0;
@@ -3121,3 +3121,4 @@
                     CallStatement:
                       identifier: main
                       parameters: []
+

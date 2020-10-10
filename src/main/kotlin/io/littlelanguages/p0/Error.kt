@@ -4,9 +4,9 @@ import io.littlelanguages.data.Yamlable
 import io.littlelanguages.p0.dynamic.tst.BinaryOp
 import io.littlelanguages.p0.dynamic.tst.Type
 import io.littlelanguages.p0.dynamic.tst.UnaryOp
-import io.littlelanguages.p0.lexer.Location
 import io.littlelanguages.p0.lexer.TToken
 import io.littlelanguages.p0.lexer.Token
+import io.littlelanguages.scanpiler.Location
 
 sealed class Errors : Yamlable
 

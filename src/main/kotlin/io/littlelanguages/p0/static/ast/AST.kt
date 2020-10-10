@@ -1,8 +1,8 @@
 package io.littlelanguages.p0.static.ast
 
 import io.littlelanguages.data.Yamlable
-import io.littlelanguages.p0.lexer.Location
-import io.littlelanguages.p0.lexer.Locationable
+import io.littlelanguages.scanpiler.Location
+import io.littlelanguages.scanpiler.Locationable
 
 
 data class Program(

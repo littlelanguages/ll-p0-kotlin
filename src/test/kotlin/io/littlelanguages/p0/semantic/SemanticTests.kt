@@ -9,7 +9,7 @@ import io.littlelanguages.data.Right
 import io.littlelanguages.p0.Errors
 import io.littlelanguages.p0.bin.MyClassLoader
 import io.littlelanguages.p0.dynamic.translate
-import io.littlelanguages.p0.lexer.LA
+import io.littlelanguages.p0.lexer.Scanner
 import org.yaml.snakeyaml.Yaml
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -37,7 +37,7 @@ class SemanticTests : FunSpec({
 
 
 fun parse(input: String): Either<List<Errors>, ByteArray> =
-        io.littlelanguages.p0.static.parse(LA(StringReader(input)))
+        io.littlelanguages.p0.static.parse(Scanner(StringReader(input)))
                 .mapLeft { listOf(it) }
                 .andThen { translate(it) }
                 .andThen { compile(it, MODULE_NAME) }

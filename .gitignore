@@ -6,3 +6,7 @@ build
 
 ./samples/*.class
 ./samples/*.yaml
+
+/src/main/kotlin/io/littlelanguages/data/Yammable.kt
+/src/main/kotlin/io/littlelanguages/p0/lexer/Scanner.kt
+/src/main/kotlin/io/littlelanguages/scanpiler
