@@ -1,38 +1,55 @@
 package io.littlelanguages.p0.static
 
-import io.littlelanguages.data.Either
-import io.littlelanguages.data.Left
-import io.littlelanguages.data.Right
+import io.littlelanguages.data.*
 import io.littlelanguages.p0.Errors
 import io.littlelanguages.p0.ParseError
 import io.littlelanguages.p0.lexer.Scanner
 import io.littlelanguages.p0.lexer.TToken
 import io.littlelanguages.p0.lexer.Token
-import io.littlelanguages.p0.static.ast.*
-import io.littlelanguages.scanpiler.Location
 
-fun parse(la: Scanner): Either<Errors, Program> =
-        Parser(la).program()
+fun <T_Program, T_VariableDeclaration, T_LiteralExpression, T_FunctionDeclaration,
+        T_FunctionDeclarationSuffix, T_Type, T_TypedIdentifier, T_Statement,
+        T_Expression, T_OrExpression, T_AndExpression, T_RelationalExpression,
+        T_RelationalOp, T_AdditiveExpression, T_AdditiveOp, T_MultiplicativeExpression,
+        T_MultiplicativeOp, T_Factor, T_UnaryOp> parse(la: Scanner, visitor: Visitor<T_Program, T_VariableDeclaration, T_LiteralExpression, T_FunctionDeclaration,
+        T_FunctionDeclarationSuffix, T_Type, T_TypedIdentifier, T_Statement,
+        T_Expression, T_OrExpression, T_AndExpression, T_RelationalExpression,
+        T_RelationalOp, T_AdditiveExpression, T_AdditiveOp, T_MultiplicativeExpression,
+        T_MultiplicativeOp, T_Factor, T_UnaryOp>): Either<Errors, T_Program> =
+        try {
+            Right(Parser(la, visitor).program())
+        } catch (e: ParsingException) {
+            Left(ParseError(e.found, e.expected))
+        }
 
 
-class Parser(private val la: Scanner) {
-    fun program(): Either<Errors, Program> =
-            try {
-                val declarations =
-                        declarations()
+class Parser<
+        T_Program, T_VariableDeclaration, T_LiteralExpression, T_FunctionDeclaration,
+        T_FunctionDeclarationSuffix, T_Type, T_TypedIdentifier, T_Statement,
+        T_Expression, T_OrExpression, T_AndExpression, T_RelationalExpression,
+        T_RelationalOp, T_AdditiveExpression, T_AdditiveOp, T_MultiplicativeExpression,
+        T_MultiplicativeOp, T_Factor, T_UnaryOp>(
+        private val la: Scanner,
+        private val visitor: Visitor<
+                T_Program, T_VariableDeclaration, T_LiteralExpression, T_FunctionDeclaration,
+                T_FunctionDeclarationSuffix, T_Type, T_TypedIdentifier, T_Statement,
+                T_Expression, T_OrExpression, T_AndExpression, T_RelationalExpression,
+                T_RelationalOp, T_AdditiveExpression, T_AdditiveOp, T_MultiplicativeExpression,
+                T_MultiplicativeOp, T_Factor, T_UnaryOp>) {
+    fun program(): T_Program {
+        val a =
+                declarations()
 
-                if (peek().tToken != TToken.TEOS) {
-                    throw ParsingException(peek(), firstDeclaration)
-                }
+        if (peek().tToken != TToken.TEOS) {
+            throw ParsingException(peek(), firstDeclaration)
+        }
 
-                Right(Program(declarations))
-            } catch (e: ParsingException) {
-                Left(ParseError(e.found, e.expected))
-            }
+        return visitor.visitProgram(a)
+    }
 
-    private fun declarations(): List<Declaration> {
+    private fun declarations(): List<Union2<T_VariableDeclaration, T_FunctionDeclaration>> {
         val result =
-                mutableListOf<Declaration>()
+                mutableListOf<Union2<T_VariableDeclaration, T_FunctionDeclaration>>()
 
         while (firstDeclaration.contains(peek().tToken))
             result.add(declaration())
@@ -40,129 +57,140 @@ class Parser(private val la: Scanner) {
         return result
     }
 
-    private fun declaration(): Declaration =
+    private fun declaration(): Union2<T_VariableDeclaration, T_FunctionDeclaration> =
             when {
-                firstVariableDeclaration.contains(peek().tToken) -> variableDeclaration()
-                firstFunctionDeclaration.contains(peek().tToken) -> functionDeclaration()
+                firstVariableDeclaration.contains(peek().tToken) -> Union2a(variableDeclaration())
+                firstFunctionDeclaration.contains(peek().tToken) -> Union2b(functionDeclaration())
                 else -> throw ParsingException(peek(), firstDeclaration)
             }
 
-    private fun variableDeclaration(): Declaration {
+    private fun variableDeclaration(): T_VariableDeclaration {
         if (!firstVariableDeclaration.contains(peek().tToken)) {
             throw ParsingException(peek(), firstVariableDeclaration)
         }
 
-        val variableAccess =
-                variableDeclarationAccess()
+        val a1 =
+                if (peek().tToken == TToken.TConst)
+                    Union2a<Token, Token>(nextToken())
+                else
+                    Union2b<Token, Token>(nextToken())
 
-        val identifier =
+        val a2 =
                 matchToken(TToken.TIdentifier)
 
-        matchToken(TToken.TEqual)
+        val a3 =
+                matchToken(TToken.TEqual)
 
-        val expression =
+        val a4 =
                 literalExpression()
 
-        matchToken(TToken.TSemicolon)
+        val a5 =
+                matchToken(TToken.TSemicolon)
 
-        return VariableDeclaration(variableAccess, Identifier(identifier.location, identifier.lexeme), expression)
+        return visitor.visitVariableDeclaration(a1, a2, a3, a4, a5)
     }
 
-    private fun variableDeclarationAccess(): VariableAccess {
-        if (!firstVariableDeclarationAccess.contains(peek().tToken))
-            throw ParsingException(peek(), firstVariableDeclarationAccess)
-
-        val variableAccess =
-                if (peek().tToken == TToken.TConst) VariableAccess.ReadOnly else VariableAccess.ReadWrite
-
-        skipToken()
-
-        return variableAccess
-    }
-
-    private fun literalExpression(): LiteralExpression =
+    private fun literalExpression(): T_LiteralExpression =
             when {
                 peek().tToken == TToken.TTrue -> {
-                    val position =
-                            nextToken().location
+                    val a =
+                            nextToken()
 
-                    LiteralExpressionValue(LiteralBool(position, true))
+                    visitor.visitLiteralExpression1(a)
                 }
                 peek().tToken == TToken.TFalse -> {
-                    val position =
-                            nextToken().location
+                    val a =
+                            nextToken()
 
-                    LiteralExpressionValue(LiteralBool(position, false))
+                    visitor.visitLiteralExpression2(a)
                 }
                 firstLiteralExpressionSign.contains(peek().tToken) -> {
-                    val literalExpressionSign =
+                    val a1 =
                             literalExpressionSign()
 
-                    val literalExpressionValue =
+                    val a2 =
                             literalExpressionValue()
 
-                    if (literalExpressionSign == null)
-                        LiteralExpressionValue(literalExpressionValue)
-                    else
-                        LiteralExpressionUnaryValue(literalExpressionSign.first, literalExpressionSign.second, literalExpressionValue)
+                    visitor.visitLiteralExpression3(a1, a2)
                 }
                 else -> throw ParsingException(peek(), firstLiteralExpression)
             }
 
-    private fun literalExpressionSign(): Pair<Location, UnaryOp>? =
+    private fun literalExpressionSign(): Union2<Token, Token>? =
             when (peek().tToken) {
                 TToken.TPlus -> {
-                    val position =
-                            nextToken().location
+                    val a =
+                            nextToken()
 
-                    Pair(position, UnaryOp.UnaryPlus)
+                    Union2a(a)
                 }
                 TToken.TMinus -> {
-                    val position =
-                            nextToken().location
+                    val a =
+                            nextToken()
 
-                    Pair(position, UnaryOp.UnaryMinus)
+                    Union2b(a)
                 }
                 else -> null
             }
 
-    private fun literalExpressionValue(): LiteralValue =
+    private fun literalExpressionValue(): Union2<Token, Token> =
             when (peek().tToken) {
                 TToken.TLiteralInt -> {
-                    val symbol =
+                    val a =
                             nextToken()
 
-                    LiteralInt(symbol.location, symbol.lexeme)
+                    Union2a(a)
                 }
                 TToken.TLiteralFloat -> {
-                    val symbol =
+                    val a =
                             nextToken()
 
-                    LiteralFloat(symbol.location, symbol.lexeme)
+                    Union2b(a)
                 }
                 else -> throw ParsingException(peek(), firstLiteralExpressionValue)
             }
 
-    private fun functionDeclaration(): Declaration {
-        matchToken(TToken.TFun)
+    private fun functionDeclaration(): T_FunctionDeclaration {
+        val a1 =
+                matchToken(TToken.TFun)
 
-        val identifier =
+        val a2 =
                 matchToken(TToken.TIdentifier)
 
-        matchToken(TToken.TLParen)
+        val a3 =
+                matchToken(TToken.TLParen)
 
-        val parameters =
-                parameters()
+        val a4: Tuple2<T_TypedIdentifier, List<Tuple2<Token, T_TypedIdentifier>>>? =
+                if (firstTypedIdentifier.contains(peek().tToken)) {
+                    val a41 =
+                            typedIdentifier()
 
-        matchToken(TToken.TRParen)
+                    val a42 =
+                            mutableListOf<Tuple2<Token, T_TypedIdentifier>>()
 
-        val functionDeclarationSuffix =
+                    while (peek().tToken == TToken.TComma) {
+                        val a421 =
+                                nextToken()
+                        val a422 =
+                                typedIdentifier()
+
+                        a42.add(Tuple2(a421, a422))
+                    }
+
+                    Tuple2(a41, a42)
+
+                } else null
+
+        val a5 =
+                matchToken(TToken.TRParen)
+
+        val a6 =
                 functionDeclarationSuffix()
 
-        return FunctionDeclaration(Identifier(identifier.location, identifier.lexeme), parameters, functionDeclarationSuffix.first, functionDeclarationSuffix.second)
+        return visitor.visitFunctionDeclaration(a1, a2, a3, a4, a5, a6)
     }
 
-    private fun parameters(): List<Pair<Identifier, Type>> =
+    private fun parameters(): List<T_TypedIdentifier> =
             if (firstTypedIdentifier.contains(peek().tToken)) {
                 val result =
                         mutableListOf(typedIdentifier())
@@ -176,75 +204,85 @@ class Parser(private val la: Scanner) {
             } else
                 emptyList()
 
-    private fun functionDeclarationSuffix(): Pair<List<Statement>, Pair<Type, Expression>?> =
+    private fun functionDeclarationSuffix(): T_FunctionDeclarationSuffix =
             when (peek().tToken) {
                 TToken.TColon -> {
-                    skipToken()
+                    val a1 =
+                            nextToken()
 
-                    val type =
+                    val a2 =
                             type()
 
-                    matchToken(TToken.TLCurly)
+                    val a3 =
+                            matchToken(TToken.TLCurly)
 
-                    val statements =
+                    val a4 =
                             statements()
 
-                    matchToken(TToken.TReturn)
+                    val a5 =
+                            matchToken(TToken.TReturn)
 
-                    val expression =
+                    val a6 =
                             expression()
 
-                    matchToken(TToken.TSemicolon)
+                    val a7 =
+                            matchToken(TToken.TSemicolon)
 
-                    matchToken(TToken.TRCurly)
+                    val a8 =
+                            matchToken(TToken.TRCurly)
 
-                    Pair(statements, Pair(type, expression))
+                    visitor.visitFunctionDeclarationSuffix1(a1, a2, a3, a4, a5, a6, a7, a8)
                 }
                 TToken.TLCurly -> {
-                    matchToken(TToken.TLCurly)
+                    val a1 = matchToken(TToken.TLCurly)
 
-                    val statements =
+                    val a2 =
                             statements()
 
-                    matchToken(TToken.TRCurly)
+                    val a3 =
+                            matchToken(TToken.TRCurly)
 
-                    Pair(statements, null)
+                    visitor.visitFunctionDeclarationSuffix2(a1, a2, a3)
                 }
                 else -> throw ParsingException(peek(), setOf(TToken.TColon, TToken.TLCurly))
             }
 
-    private fun typedIdentifier(): Pair<Identifier, Type> {
-        val identifier =
+    private fun typedIdentifier(): T_TypedIdentifier {
+        val a1 =
                 matchToken(TToken.TIdentifier)
 
-        matchToken(TToken.TColon)
+        val a2 =
+                matchToken(TToken.TColon)
 
-        val type =
+        val a3 =
                 type()
 
-        return Pair(Identifier(identifier.location, identifier.lexeme), type)
+        return visitor.visitTypedIdentifier(a1, a2, a3)
     }
 
-    private fun type(): Type =
+    private fun type(): T_Type =
             when (peek().tToken) {
                 TToken.TInt -> {
-                    skipToken()
-                    Type.Int
+                    val a =
+                            nextToken()
+                    visitor.visitType1(a)
                 }
                 TToken.TFloat -> {
-                    skipToken()
-                    Type.Float
+                    val a =
+                            nextToken()
+                    visitor.visitType2(a)
                 }
                 TToken.TBool -> {
-                    skipToken()
-                    Type.Bool
+                    val a =
+                            nextToken()
+                    visitor.visitType3(a)
                 }
                 else -> {
                     throw ParsingException(peek(), firstType)
                 }
             }
 
-    private fun statements(): List<Statement> =
+    private fun statements(): List<T_Statement> =
             if (firstStatement.contains(peek().tToken)) {
                 val result =
                         mutableListOf(statement())
@@ -257,208 +295,270 @@ class Parser(private val la: Scanner) {
             } else
                 emptyList()
 
-    private fun statement(): Statement =
+    private fun statement(): T_Statement =
             when (peek().tToken) {
                 TToken.TIdentifier -> {
-                    val identifier =
+                    val a1 =
                             nextToken()
 
-                    if (peek().tToken == TToken.TEqual) {
-                        skipToken()
+                    val a2 =
+                            if (peek().tToken == TToken.TEqual) {
+                                val a21 =
+                                        nextToken()
 
-                        val expression =
-                                expression()
+                                val a22 =
+                                        expression()
 
-                        matchToken(TToken.TSemicolon)
+                                Union2b<Tuple3<Token, Tuple2<T_Expression, List<Tuple2<Token, T_Expression>>>?, Token>, Tuple2<Token, T_Expression>>(Tuple2(a21, a22))
+                            } else {
+                                val a21 =
+                                        matchToken(TToken.TLParen)
 
-                        AssignmentStatement(Identifier(identifier.location, identifier.lexeme), expression)
-                    } else {
-                        matchToken(TToken.TLParen)
-                        val arguments =
-                                arguments()
+                                val a22: Tuple2<T_Expression, List<Tuple2<Token, T_Expression>>>? =
+                                        if (firstExpression.contains(peek().tToken)) {
+                                            val a221 =
+                                                    expression()
 
-                        matchToken(TToken.TRParen)
-                        matchToken(TToken.TSemicolon)
+                                            val a222 =
+                                                    mutableListOf<Tuple2<Token, T_Expression>>()
 
-                        CallStatement(Identifier(identifier.location, identifier.lexeme), arguments)
-                    }
+                                            while (peek().tToken == TToken.TComma) {
+                                                val a2221 =
+                                                        nextToken()
+
+                                                val a2222 =
+                                                        expression()
+
+                                                a222.add(Tuple2(a2221, a2222))
+                                            }
+
+                                            Tuple2(a221, a222)
+                                        } else
+                                            null
+
+                                val a23 =
+                                        matchToken(TToken.TRParen)
+
+                                Union2a<Tuple3<Token, Tuple2<T_Expression, List<Tuple2<Token, T_Expression>>>?, Token>, Tuple2<Token, T_Expression>>(Tuple3(a21, a22, a23))
+                            }
+
+                    val a3 =
+                            matchToken(TToken.TSemicolon)
+
+                    visitor.visitStatement5(a1, a2, a3)
                 }
                 TToken.TIf -> {
-                    skipToken()
+                    val a1 =
+                            nextToken()
 
-                    val expression =
+                    val a2 =
                             expression()
 
-                    val statement1 =
+                    val a3 =
                             statement()
+
+                    var a4: Tuple2<Token, T_Statement>? =
+                            null
 
                     if (peek().tToken == TToken.TElse) {
-                        skipToken()
-                        val statement2 =
+                        val a41 =
+                                nextToken()
+                        val a42 =
                                 statement()
 
-                        IfThenElseStatement(expression, statement1, statement2)
-                    } else
-                        IfThenElseStatement(expression, statement1, null)
+                        a4 = Tuple2(a41, a42)
+                    }
+
+                    visitor.visitStatement2(a1, a2, a3, a4)
                 }
                 TToken.TWhile -> {
-                    skipToken()
+                    val a1 =
+                            nextToken()
 
-                    val expression =
+                    val a2 =
                             expression()
 
-                    val statement =
+                    val a3 =
                             statement()
 
-                    WhileStatement(expression, statement)
+                    visitor.visitStatement3(a1, a2, a3)
                 }
                 TToken.TLCurly -> {
-                    skipToken()
+                    val a1 =
+                            nextToken()
 
-                    val statements =
+                    val a2 =
                             statements()
 
-                    matchToken(TToken.TRCurly)
+                    val a3 =
+                            matchToken(TToken.TRCurly)
 
-                    BlockStatement(statements)
+                    visitor.visitStatement4(a1, a2, a3)
                 }
                 TToken.TSemicolon -> {
-                    skipToken()
+                    val a =
+                            nextToken()
 
-                    EmptyStatement
+                    visitor.visitStatement6(a)
                 }
                 else ->
                     if (firstVariableDeclaration.contains(peek().tToken)) {
-                        val variableDeclarationAccess =
-                                variableDeclarationAccess()
+                        val a1 =
+                                if (peek().tToken == TToken.TConst)
+                                    Union2a<Token, Token>(nextToken())
+                                else
+                                    Union2b<Token, Token>(nextToken())
 
-                        val identifier =
+                        val a2 =
                                 matchToken(TToken.TIdentifier)
 
-                        matchToken(TToken.TEqual)
+                        val a3 =
+                                matchToken(TToken.TEqual)
 
-                        val expression =
+                        val a4 =
                                 expression()
 
-                        matchToken(TToken.TSemicolon)
+                        val a5 =
+                                matchToken(TToken.TSemicolon)
 
-                        DeclarationStatement(variableDeclarationAccess, Identifier(identifier.location, identifier.lexeme), expression)
+                        visitor.visitStatement1(a1, a2, a3, a4, a5)
                     } else
                         throw ParsingException(peek(), firstStatement)
             }
 
-    private fun arguments(): List<Expression> =
-            if (firstExpression.contains(peek().tToken)) {
-                val expressions =
-                        mutableListOf(expression())
-
-                while (peek().tToken == TToken.TComma) {
-                    skipToken()
-                    expressions.add(expression())
-                }
-
-                expressions
-            } else
-                emptyList()
-
-    private fun expression(): Expression {
-        val orExpression =
+    private fun expression(): T_Expression {
+        val a1 =
                 orExpression()
 
-        val optionalTernaryExpressionSuffix =
+        val a2 =
                 optionalTernaryExpressionSuffix()
 
-        return if (optionalTernaryExpressionSuffix == null)
-            orExpression
-        else
-            TernaryExpression(orExpression, optionalTernaryExpressionSuffix.first, optionalTernaryExpressionSuffix.second)
+        return visitor.visitExpression(a1, a2)
     }
 
-    private fun optionalTernaryExpressionSuffix(): Pair<Expression, Expression>? =
+    private fun optionalTernaryExpressionSuffix(): Tuple4<Token, T_Expression, Token, T_Expression>? =
             if (peek().tToken == TToken.TQuestion) {
-                skipToken()
+                val a1 =
+                        nextToken()
 
-                val thenExpression =
+                val a2 =
                         expression()
 
-                matchToken(TToken.TColon)
+                val a3 =
+                        matchToken(TToken.TColon)
 
-                val elseExpression =
+                val a4 =
                         expression()
 
-                Pair(thenExpression, elseExpression)
+                Tuple4(a1, a2, a3, a4)
             } else
                 null
 
-    private fun orExpression(): Expression {
-        var current =
+    private fun orExpression(): T_OrExpression {
+        val a1 =
                 andExpression()
 
-        while (peek().tToken == TToken.TBarBar) {
-            skipToken()
+        val a2 =
+                mutableListOf<Tuple2<Token, T_AndExpression>>()
 
-            val next =
+        while (peek().tToken == TToken.TBarBar) {
+            val a21 =
+                    nextToken()
+
+            val a22 =
                     andExpression()
 
-            current =
-                    BinaryExpression(current, BinaryOp.Or, next)
+            a2.add(Tuple2(a21, a22))
         }
 
-        return current
+        return visitor.visitOrExpression(a1, a2)
     }
 
-    private fun andExpression(): Expression {
-        var current =
+    private fun andExpression(): T_AndExpression {
+        val a1 =
                 relationalExpression()
 
-        while (peek().tToken == TToken.TAmpersandAmpersand) {
-            skipToken()
+        val a2 =
+                mutableListOf<Tuple2<Token, T_RelationalExpression>>()
 
-            val next =
+        while (peek().tToken == TToken.TAmpersandAmpersand) {
+            val a21 =
+                    nextToken()
+
+            val a22 =
                     relationalExpression()
 
-            current =
-                    BinaryExpression(current, BinaryOp.And, next)
+            a2.add(Tuple2(a21, a22))
         }
 
-        return current
+        return visitor.visitAndExpression(a1, a2)
     }
 
-    private fun relationalExpression(): Expression {
-        val current =
+    private fun relationalExpression(): T_RelationalExpression {
+        val a1 =
                 additiveExpression()
 
-        return if (firstRelationOp.contains(peek().tToken)) {
+        val a2 = if (firstRelationOp.contains(peek().tToken)) {
             val relationalOp =
                     relationalOp()
 
             val next =
                     additiveExpression()
 
-            BinaryExpression(current, relationalOp, next)
+            Tuple2(relationalOp, next)
         } else
-            current
+            null
+
+        return visitor.visitRelationalExpression(a1, a2)
     }
 
-    private fun relationalOp(): BinaryOp {
-        val result =
-                when (peek().tToken) {
-                    TToken.TEqualEqual -> BinaryOp.Equal
-                    TToken.TBangEqual -> BinaryOp.NotEqual
-                    TToken.TLessEqual -> BinaryOp.LessEqual
-                    TToken.TLessThan -> BinaryOp.LessThan
-                    TToken.TGreaterEqual -> BinaryOp.GreaterEqual
-                    TToken.TGreaterThan -> BinaryOp.GreaterThan
-                    else -> throw ParsingException(peek(), firstRelationOp)
+    private fun relationalOp(): T_RelationalOp =
+            when (peek().tToken) {
+                TToken.TEqualEqual -> {
+                    val a =
+                            nextToken()
+
+                    visitor.visitRelationalOp1(a)
                 }
-        skipToken()
+                TToken.TBangEqual -> {
+                    val a =
+                            nextToken()
 
-        return result
-    }
+                    visitor.visitRelationalOp2(a)
+                }
+                TToken.TLessEqual -> {
+                    val a =
+                            nextToken()
 
-    private fun additiveExpression(): Expression {
-        var current =
+                    visitor.visitRelationalOp3(a)
+                }
+                TToken.TLessThan -> {
+                    val a =
+                            nextToken()
+
+                    visitor.visitRelationalOp4(a)
+                }
+                TToken.TGreaterEqual -> {
+                    val a =
+                            nextToken()
+
+                    visitor.visitRelationalOp5(a)
+                }
+                TToken.TGreaterThan -> {
+                    val a =
+                            nextToken()
+
+                    visitor.visitRelationalOp6(a)
+                }
+                else -> throw ParsingException(peek(), firstRelationOp)
+            }
+
+    private fun additiveExpression(): T_AdditiveExpression {
+        val a1 =
                 multiplicativeExpression()
+
+        val a2 =
+                mutableListOf<Tuple2<T_AdditiveOp, T_MultiplicativeExpression>>()
 
         while (firstAdditiveOp.contains(peek().tToken)) {
             val additiveOp =
@@ -467,28 +567,35 @@ class Parser(private val la: Scanner) {
             val next =
                     multiplicativeExpression()
 
-            current =
-                    BinaryExpression(current, additiveOp, next)
+            a2.add(Tuple2(additiveOp, next))
         }
 
-        return current
+        return visitor.visitAdditiveExpression(a1, a2)
     }
 
-    private fun additiveOp(): BinaryOp {
-        val result =
-                when (peek().tToken) {
-                    TToken.TPlus -> BinaryOp.Plus
-                    TToken.TMinus -> BinaryOp.Minus
-                    else -> throw ParsingException(peek(), firstAdditiveOp)
+    private fun additiveOp(): T_AdditiveOp =
+            when (peek().tToken) {
+                TToken.TPlus -> {
+                    val a =
+                            nextToken()
+
+                    visitor.visitAdditiveOp1(a)
                 }
-        skipToken()
+                TToken.TMinus -> {
+                    val a =
+                            nextToken()
 
-        return result
-    }
+                    visitor.visitAdditiveOp2(a)
+                }
+                else -> throw ParsingException(peek(), firstAdditiveOp)
+            }
 
-    private fun multiplicativeExpression(): Expression {
-        var current =
+    private fun multiplicativeExpression(): T_MultiplicativeExpression {
+        val a1 =
                 factor()
+
+        val a2 =
+                mutableListOf<Tuple2<T_MultiplicativeOp, T_Factor>>()
 
         while (firstMultiplicativeOp.contains(peek().tToken)) {
             val multiplicativeOp =
@@ -497,129 +604,149 @@ class Parser(private val la: Scanner) {
             val next =
                     factor()
 
-            current =
-                    BinaryExpression(current, multiplicativeOp, next)
+            a2.add(Tuple2(multiplicativeOp, next))
+
         }
-
-        return current
+        return visitor.visitMultiplicativeExpression(a1, a2)
     }
 
-    private fun multiplicativeOp(): BinaryOp {
-        val result =
-                when (peek().tToken) {
-                    TToken.TStar -> BinaryOp.Times
-                    TToken.TSlash -> BinaryOp.Divide
-                    else -> throw ParsingException(peek(), firstAdditiveOp)
+    private fun multiplicativeOp(): T_MultiplicativeOp =
+            when (peek().tToken) {
+                TToken.TStar -> {
+                    val a =
+                            nextToken()
+
+                    visitor.visitMultiplicativeOp1(a)
                 }
-        skipToken()
+                TToken.TSlash -> {
+                    val a =
+                            nextToken()
 
-        return result
-    }
+                    visitor.visitMultiplicativeOp2(a)
+                }
+                else -> throw ParsingException(peek(), firstAdditiveOp)
+            }
 
-    private fun factor(): Expression =
+    private fun factor(): T_Factor =
             when (peek().tToken) {
                 TToken.TLiteralInt -> {
-                    val token =
+                    val a =
                             nextToken()
 
-                    LiteralValueExpression(LiteralInt(token.location, token.lexeme))
+                    visitor.visitFactor1(a)
                 }
                 TToken.TLiteralFloat -> {
-                    val token =
+                    val a =
                             nextToken()
 
-                    LiteralValueExpression(LiteralFloat(token.location, token.lexeme))
+                    visitor.visitFactor2(a)
                 }
                 TToken.TLiteralString -> {
-                    val token =
+                    val a =
                             nextToken()
 
-                    LiteralValueExpression(LiteralString(token.location, token.lexeme))
+                    visitor.visitFactor3(a)
                 }
                 TToken.TTrue -> {
-                    val token =
+                    val a =
                             nextToken()
 
-                    LiteralValueExpression(LiteralBool(token.location, true))
+                    visitor.visitFactor4(a)
                 }
                 TToken.TFalse -> {
-                    val token =
+                    val a =
                             nextToken()
 
-                    LiteralValueExpression(LiteralBool(token.location, false))
+                    visitor.visitFactor5(a)
                 }
                 TToken.TLParen -> {
-                    val leftToken =
+                    val a1 =
                             nextToken()
 
-                    val expression =
+                    val a2 =
                             expression()
 
-                    val rightToken =
+                    val a3 =
                             matchToken(TToken.TRParen)
 
-                    Parenthesis(leftToken.location + rightToken.location, expression)
+                    visitor.visitFactor7(a1, a2, a3)
                 }
                 TToken.TIdentifier -> {
-                    val identifier =
+                    val a1 =
                             nextToken()
 
-                    val optionalParameters =
-                            optionalParameters()
+                    var a2: Tuple3<Token, Tuple2<T_Expression, List<Tuple2<Token, T_Expression>>>?, Token>? =
+                            null
 
-                    if (optionalParameters == null)
-                        IdentifierReference(Identifier(identifier.location, identifier.lexeme))
-                    else
-                        CallExpression(Identifier(identifier.location, identifier.lexeme), optionalParameters.first)
+                    if (peek().tToken == TToken.TLParen) {
+                        val a21 =
+                                nextToken()
+
+                        var a22: Tuple2<T_Expression, List<Tuple2<Token, T_Expression>>>? =
+                                null
+
+                        if (firstExpression.contains((peek().tToken))) {
+                            val a221 =
+                                    expression()
+
+                            val a222: MutableList<Tuple2<Token, T_Expression>> =
+                                    mutableListOf()
+
+                            while (peek().tToken == TToken.TComma) {
+                                val a2221 =
+                                        nextToken()
+
+                                val a2222 =
+                                        expression()
+
+                                a222.add(Tuple2(a2221, a2222))
+                            }
+                            a22 = Tuple2(a221, a222)
+                        }
+                        val a23 =
+                                matchToken(TToken.TRParen)
+
+                        a2 = Tuple3(a21, a22, a23)
+                    }
+
+                    visitor.visitFactor8(a1, a2)
                 }
                 else ->
                     if (firstUnaryOperator.contains(peek().tToken)) {
-                        val position =
-                                peek().location
-
                         val unaryOperator =
                                 unaryOperator()
 
                         val factor =
                                 factor()
 
-                        UnaryExpression(position, unaryOperator, factor)
+                        visitor.visitFactor6(unaryOperator, factor)
                     } else
                         throw ParsingException(peek(), firstFactor)
             }
 
-    private fun unaryOperator(): UnaryOp {
-        val result =
-                when (peek().tToken) {
-                    TToken.TBang ->
-                        UnaryOp.UnaryNot
-                    TToken.TMinus ->
-                        UnaryOp.UnaryMinus
-                    TToken.TPlus ->
-                        UnaryOp.UnaryPlus
-                    else ->
-                        throw ParsingException(peek(), firstUnaryOperator)
+    private fun unaryOperator(): T_UnaryOp =
+            when (peek().tToken) {
+                TToken.TBang -> {
+                    val a =
+                            nextToken()
+
+                    visitor.visitUnaryOp1(a)
                 }
+                TToken.TMinus -> {
+                    val a =
+                            nextToken()
 
-        skipToken()
+                    visitor.visitUnaryOp2(a)
+                }
+                TToken.TPlus -> {
+                    val a =
+                            nextToken()
 
-        return result
-    }
-
-    private fun optionalParameters(): Pair<List<Expression>, Location>? =
-            if (peek().tToken == TToken.TLParen) {
-                val startToken =
-                        nextToken()
-
-                val parameters =
-                        arguments()
-
-                val endToken =
-                        matchToken(TToken.TRParen)
-
-                Pair(parameters, startToken.location + endToken.location)
-            } else
-                null
+                    visitor.visitUnaryOp3(a)
+                }
+                else ->
+                    throw ParsingException(peek(), firstUnaryOperator)
+            }
 
     private fun matchToken(tToken: TToken): Token =
             when (peek().tToken) {

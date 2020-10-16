@@ -8,6 +8,7 @@ import io.littlelanguages.data.Right
 import io.littlelanguages.p0.Errors
 import io.littlelanguages.p0.lexer.Scanner
 import io.littlelanguages.p0.static.ast.Program
+import io.littlelanguages.p0.static.ast.Visitor
 import org.yaml.snakeyaml.Yaml
 import java.io.File
 import java.io.StringReader
@@ -30,7 +31,7 @@ class ParserTests : FunSpec({
 
 
 fun parse(input: String): Either<Errors, Program> =
-        parse(Scanner(StringReader(input)))
+        parse(Scanner(StringReader(input)), Visitor())
 
 
 suspend fun conformanceTest(ctx: FunSpecDsl.ContextScope, scenarios: List<*>) {

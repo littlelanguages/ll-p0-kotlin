@@ -9,6 +9,7 @@ import io.littlelanguages.p0.lexer.Scanner
 import io.littlelanguages.p0.lexer.TToken
 import io.littlelanguages.p0.lexer.Token
 import io.littlelanguages.p0.semantic.compile
+import io.littlelanguages.p0.static.ast.Visitor
 import org.yaml.snakeyaml.Yaml
 import java.io.File
 import java.io.StringReader
@@ -57,7 +58,7 @@ private fun lexicalOnly(input: Input) {
 
 private fun astOnly(input: Input) {
     val ast =
-            io.littlelanguages.p0.static.parse(Scanner(StringReader(input.src.readText())))
+            io.littlelanguages.p0.static.parse(Scanner(StringReader(input.src.readText())), Visitor())
 
     when (ast) {
         is Left ->
@@ -70,7 +71,7 @@ private fun astOnly(input: Input) {
 
 private fun tstOnly(input: Input) {
     val tst =
-            io.littlelanguages.p0.static.parse(Scanner(StringReader(input.src.readText())))
+            io.littlelanguages.p0.static.parse(Scanner(StringReader(input.src.readText())), Visitor())
                     .mapLeft { listOf(it) }
                     .andThen { translate(it) }
 
@@ -105,7 +106,7 @@ private fun compileOnly(input: Input) {
 }
 
 fun parse(input: String, moduleName: String): Either<List<Errors>, ByteArray> =
-        io.littlelanguages.p0.static.parse(Scanner(StringReader(input)))
+        io.littlelanguages.p0.static.parse(Scanner(StringReader(input)), Visitor())
                 .mapLeft { listOf(it) }
                 .andThen { translate(it) }
                 .andThen { compile(it, moduleName) }

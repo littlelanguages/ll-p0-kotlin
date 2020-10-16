@@ -118,10 +118,10 @@ class Translator {
                                 mutableSetOf<String>()
 
                         for (a in d.arguments) {
-                            if (names.contains(a.first.name))
-                                reportError(AttemptToRedefineDeclarationError(a.first.location, a.first.name))
+                            if (names.contains(a.a.name))
+                                reportError(AttemptToRedefineDeclarationError(a.a.location, a.a.name))
 
-                            names.add(a.first.name)
+                            names.add(a.a.name)
                         }
                     }
 
@@ -144,7 +144,7 @@ class Translator {
                     validateDeclarations()
 
                     val sigmap =
-                            sigma.plus(d.arguments.map { Pair(it.first.name, Variable(it.second.toType())) })
+                            sigma.plus(d.arguments.map { Pair(it.a.name, Variable(it.b.toType())) })
 
                     val ssp =
                             ss(d.statements, sigmap)
@@ -153,16 +153,16 @@ class Translator {
                             d.suffix
 
                     if (suffix == null)
-                        FunctionDeclaration(d.identifier.name, d.arguments.map { Pair(it.first.name, it.second.toType()) }, ssp.first, null)
+                        FunctionDeclaration(d.identifier.name, d.arguments.map { Pair(it.a.name, it.b.toType()) }, ssp.first, null)
                     else {
                         val ep =
-                                e(suffix.second, ssp.second)
+                                e(suffix.b, ssp.second)
 
-                        if (ep.typeOf() != suffix.first.toType()) {
-                            reportError(FunctionReturnTypeMismatch(d.identifier.location, d.identifier.name, suffix.first.toType()))
+                        if (ep.typeOf() != suffix.a.toType()) {
+                            reportError(FunctionReturnTypeMismatch(d.identifier.location, d.identifier.name, suffix.a.toType()))
                         }
 
-                        FunctionDeclaration(d.identifier.name, d.arguments.map { Pair(it.first.name, it.second.toType()) }, ssp.first, ep)
+                        FunctionDeclaration(d.identifier.name, d.arguments.map { Pair(it.a.name, it.b.toType()) }, ssp.first, ep)
                     }
                 }
             }
@@ -575,9 +575,9 @@ private fun binding(d: io.littlelanguages.p0.static.ast.Declaration): Binding =
                 val suffix = d.suffix
 
                 if (suffix == null)
-                    Function(d.arguments.map { it.second.toType() }, null)
+                    Function(d.arguments.map { it.b.toType() }, null)
                 else
-                    Function(d.arguments.map { it.second.toType() }, suffix.first.toType())
+                    Function(d.arguments.map { it.b.toType() }, suffix.a.toType())
             }
         }
 

@@ -9,6 +9,7 @@ import io.littlelanguages.data.Right
 import io.littlelanguages.p0.Errors
 import io.littlelanguages.p0.dynamic.tst.Program
 import io.littlelanguages.p0.lexer.Scanner
+import io.littlelanguages.p0.static.ast.Visitor
 import org.yaml.snakeyaml.Yaml
 import java.io.File
 import java.io.StringReader
@@ -31,7 +32,7 @@ class DynamicTests : FunSpec({
 
 
 fun parse(input: String): Either<List<Errors>, Program> =
-        io.littlelanguages.p0.static.parse(Scanner(StringReader(input)))
+        io.littlelanguages.p0.static.parse(Scanner(StringReader(input)), Visitor())
                 .mapLeft { listOf(it) }
                 .andThen { translate(it) }
 
