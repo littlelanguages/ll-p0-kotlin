@@ -29,7 +29,7 @@ class Parser<
         T_Expression, T_OrExpression, T_AndExpression, T_RelationalExpression,
         T_RelationalOp, T_AdditiveExpression, T_AdditiveOp, T_MultiplicativeExpression,
         T_MultiplicativeOp, T_Factor, T_UnaryOp>(
-        private val la: Scanner,
+        private val scanner: Scanner,
         private val visitor: Visitor<
                 T_Program, T_VariableDeclaration, T_LiteralExpression, T_FunctionDeclaration,
                 T_FunctionDeclarationSuffix, T_Type, T_TypedIdentifier, T_Statement,
@@ -764,11 +764,11 @@ class Parser<
     }
 
     private fun skipToken() {
-        la.next()
+        scanner.next()
     }
 
     private fun peek(): Token =
-            la.current()
+            scanner.current()
 }
 
 
