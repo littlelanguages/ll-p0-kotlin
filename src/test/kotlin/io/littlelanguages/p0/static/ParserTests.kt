@@ -6,7 +6,6 @@ import io.kotest.matchers.shouldBe
 import io.littlelanguages.data.Either
 import io.littlelanguages.data.Right
 import io.littlelanguages.p0.Errors
-import io.littlelanguages.p0.lexer.Scanner
 import io.littlelanguages.p0.static.ast.Program
 import io.littlelanguages.p0.static.ast.Visitor
 import org.yaml.snakeyaml.Yaml
@@ -24,7 +23,7 @@ class ParserTests : FunSpec({
         val scenarios: Any = yaml.load(content)
 
         if (scenarios is List<*>) {
-            conformanceTest(this, scenarios)
+            parserConformanceTest(this, scenarios)
         }
     }
 })
@@ -34,7 +33,7 @@ fun parse(input: String): Either<Errors, Program> =
         parse(Scanner(StringReader(input)), Visitor())
 
 
-suspend fun conformanceTest(ctx: FunSpecDsl.ContextScope, scenarios: List<*>) {
+suspend fun parserConformanceTest(ctx: FunSpecDsl.ContextScope, scenarios: List<*>) {
     scenarios.forEach { scenario ->
         val s = scenario as Map<*, *>
 
@@ -57,7 +56,7 @@ suspend fun conformanceTest(ctx: FunSpecDsl.ContextScope, scenarios: List<*>) {
             val name = nestedScenario["name"] as String
             val tests = nestedScenario["tests"] as List<*>
             ctx.context(name) {
-                conformanceTest(this, tests)
+                parserConformanceTest(this, tests)
             }
         }
     }

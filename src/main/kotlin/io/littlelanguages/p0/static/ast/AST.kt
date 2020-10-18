@@ -1,10 +1,10 @@
 package io.littlelanguages.p0.static.ast
 
+import io.littlelanguages.data.*
+import io.littlelanguages.p0.static.Token
+import io.littlelanguages.p0.static.Visitor
 import io.littlelanguages.scanpiler.Location
 import io.littlelanguages.scanpiler.Locationable
-import io.littlelanguages.data.*
-import io.littlelanguages.p0.lexer.Token
-import io.littlelanguages.p0.static.Visitor
 
 
 data class Program(

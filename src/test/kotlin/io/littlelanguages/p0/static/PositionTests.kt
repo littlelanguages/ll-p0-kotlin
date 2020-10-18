@@ -1,4 +1,4 @@
-package io.littlelanguages.p0.lexer
+package io.littlelanguages.p0.static
 
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe

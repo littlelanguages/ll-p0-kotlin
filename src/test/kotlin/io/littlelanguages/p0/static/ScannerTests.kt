@@ -1,4 +1,4 @@
-package io.littlelanguages.p0.lexer
+package io.littlelanguages.p0.static
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.spec.style.FunSpecDsl
@@ -7,17 +7,17 @@ import org.yaml.snakeyaml.Yaml
 import java.io.File
 import java.io.StringReader
 
-class LATests : FunSpec({
+class ScannerTests : FunSpec({
     context("Conformance Tests") {
 //        val content = File("./../overview/docs/p0/conformance/lexical.yaml").readText()
-        val content = File("./src/test/kotlin/io/littlelanguages/p0/lexer/lexical.yaml").readText()
+        val content = File("./src/test/kotlin/io/littlelanguages/p0/static/lexical.yaml").readText()
 //        val content = khttp.get("https://little-languages.gitlab.io/overview/p0/conformance/lexical.yaml").text
 
         val yaml = Yaml()
         val scenarios: Any = yaml.load(content)
 
         if (scenarios is List<*>) {
-            conformanceTest(this, scenarios)
+            scannerConformanceTest(this, scenarios)
         }
     }
 })
@@ -39,7 +39,7 @@ private fun tokens(input: String): List<Token> =
         assembleTokens(Scanner(StringReader(input)))
 
 
-suspend fun conformanceTest(ctx: FunSpecDsl.ContextScope, scenarios: List<*>) {
+suspend fun scannerConformanceTest(ctx: FunSpecDsl.ContextScope, scenarios: List<*>) {
     scenarios.forEach { scenario ->
         val s = scenario as Map<*, *>
 
@@ -56,7 +56,7 @@ suspend fun conformanceTest(ctx: FunSpecDsl.ContextScope, scenarios: List<*>) {
             val name = nestedScenario["name"] as String
             val tests = nestedScenario["tests"] as List<*>
             ctx.context(name) {
-                conformanceTest(this, tests)
+                scannerConformanceTest(this, tests)
             }
         }
     }

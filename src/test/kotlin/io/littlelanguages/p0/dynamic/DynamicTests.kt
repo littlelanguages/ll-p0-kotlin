@@ -8,7 +8,7 @@ import io.littlelanguages.data.Left
 import io.littlelanguages.data.Right
 import io.littlelanguages.p0.Errors
 import io.littlelanguages.p0.dynamic.tst.Program
-import io.littlelanguages.p0.lexer.Scanner
+import io.littlelanguages.p0.static.Scanner
 import io.littlelanguages.p0.static.ast.Visitor
 import org.yaml.snakeyaml.Yaml
 import java.io.File

@@ -1,4 +1,4 @@
-uses "../lexer/Scanner.llld";
+uses "./Scanner.llld";
 
 Program: {VariableDeclaration | FunctionDeclaration};
 
@@ -26,7 +26,7 @@ Statement
   | "if" Expression Statement ["else" Statement]
   | "while" Expression Statement
   | "{" {Statement} "}"
-  | Identifier ("{" [Expression {"," Expression}] "}" | "=' Expression) ";"
+  | Identifier ("(" [Expression {"," Expression}] ")" | "=" Expression) ";"
   | ";"
   ;
 
