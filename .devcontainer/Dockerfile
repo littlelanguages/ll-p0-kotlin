@@ -1,7 +1,7 @@
 ARG VARIANT="15"
 FROM mcr.microsoft.com/vscode/devcontainers/java:0-${VARIANT}
 
-ARG GRADLE_VERSION=""
+ARG GRADLE_VERSION="6.7"
 RUN su vscode -c "source /usr/local/sdkman/bin/sdkman-init.sh && sdk install gradle \"${GRADLE_VERSION}\""
 
 RUN su vscode -c "curl -fsSL https://deno.land/x/install/install.sh | sh -s v1.4.6"
