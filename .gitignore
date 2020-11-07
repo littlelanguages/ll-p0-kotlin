@@ -1,5 +1,8 @@
 .idea/
 .kotlintest/
+.settings/
+.project
+.classpath
 
 .gradle
 build
