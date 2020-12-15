@@ -1,8 +1,7 @@
 package io.littlelanguages.p0.static.ast
 
-import io.littlelanguages.data.*
-import io.littlelanguages.p0.static.Token
-import io.littlelanguages.p0.static.Visitor
+import io.littlelanguages.data.Tuple2
+import io.littlelanguages.data.Yamlable
 import io.littlelanguages.scanpiler.Location
 import io.littlelanguages.scanpiler.Locationable
 
@@ -243,8 +242,7 @@ data class LiteralValueExpression(
     override fun position(): Location = value.position()
 
     override fun yaml(): Any =
-            singletonMap("LiteralValue", mapOf(
-                    Pair("value", value.yaml())))
+            value.yaml()
 }
 
 
@@ -255,8 +253,7 @@ data class LiteralExpressionValue(
     override fun position(): Location = value.position()
 
     override fun yaml(): Any =
-            singletonMap("LiteralExpressionValue", mapOf(
-                    Pair("value", value.yaml())))
+            value.yaml()
 }
 
 data class LiteralExpressionUnaryValue(
